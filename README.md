@@ -10,7 +10,11 @@ We want to create a model that can provide the ideal daily rate in order to maxi
 Less cancellations. Easier to maintain staff scheduling. Simplify inventory management. Higher revenue.
 
 ## Models used and metrics
+Linear Regression
+XGBOOST
+K-Means
 
+RMSE
 
 ## Contributors
 The contributors of this project are GitHub users: NineYearsOld, yrjavk and ...
