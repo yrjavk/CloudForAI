@@ -17,4 +17,4 @@ K-Means
 RMSE
 
 ## Contributors
-The contributors of this project are GitHub users: NineYearsOld, yrjavk and ...
+The contributors of this project are GitHub users: NineYearsOld, JordyCrthls and yrjavk.
