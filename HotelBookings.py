@@ -129,7 +129,6 @@ Xval, Xtest, yval, ytest = train_test_split(Xrest, yrest, test_size=0.5)
 lr = LinearRegression()
 lr.fit(Xtrain, ytrain)
 st.write(df.columns.tolist())
-st.session_state['lr_model'] = lr
 
 columns = Xtrain.columns.values.tolist()
 coefs = lr.coef_.ravel().tolist()
@@ -201,3 +200,7 @@ rmse_scores = cross_val_score(knn, Xtrain, ytrain, cv=kf, scoring='neg_root_mean
 
 
 RMSE(yval, y_pred_knn)
+
+st.session_state['kf_model'] = kf
+st.session_state['lr_model'] = lr
+st.session_state['knn_model'] = knn
