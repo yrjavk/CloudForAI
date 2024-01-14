@@ -35,28 +35,28 @@ if st.checkbox("Show raw data first 5 rows"):
     st.write(rawdata.head())
 
 
+rawdata.drop(['email', 'credit_card', 'phone-number', 'name'], axis=1, inplace = True)
 
 if 'rawdata' not in st.session_state:
     st.session_state['rawdata'] = rawdata
 
 
-##Descriptive
-##data cleaning
-descriptive_data = rawdata
-descriptive_data['total_revenues'] = descriptive_data['adr'] * (descriptive_data['stays_in_weekend_nights'] + descriptive_data['stays_in_week_nights'])
 
 
+@st.cache_data
+def rawdata_cleaning(data):
+    data['total_revenues'] = data['adr'] * (data['stays_in_weekend_nights'] + data['stays_in_week_nights'])
+    data['arrival_date_month'] = pd.to_datetime(data.arrival_date_month, format='%B').dt.month
+    data['reservation_status_date']=data['reservation_status_date'].astype('datetime64[ns]')
+    data.drop(['agent', 'company'], axis=1, inplace = True)
+    data['children'].fillna(data['children'].median(), inplace=True)
+    data['children']=data['children'].astype(int)
+    mode_country=data['country'].mode()[0]
+    data['country'] = data['country'].fillna(mode_country)
+    return data
 
-descriptive_data['arrival_date_month'] = pd.to_datetime(descriptive_data.arrival_date_month, format='%B').dt.month
-descriptive_data['reservation_status_date']=descriptive_data['reservation_status_date'].astype('datetime64[ns]')
-descriptive_data.drop(['email', 'credit_card', 'phone-number', 'name','agent', 'company'], axis=1, inplace = True)
-descriptive_data['children'].fillna(descriptive_data['children'].median(), inplace=True)
-descriptive_data['children']=descriptive_data['children'].astype(int)
-mode_country=descriptive_data['country'].mode()[0]
-descriptive_data['country'] = descriptive_data['country'].fillna(mode_country)
 
-
-
+descriptive_data = rawdata_cleaning(rawdata)
 if 'descriptive_data' not in st.session_state:
     st.session_state['descriptive_data'] = descriptive_data
 
@@ -82,13 +82,6 @@ def replace_undefined_with_mode(data, column_name):
 
 data, mappings = factorize_columns(descriptive_data, ['hotel','meal','market_segment','distribution_channel','reserved_room_type','assigned_room_type', 'deposit_type', 'customer_type', 'reservation_status'])
 
-
-modeldata = descriptive_data
-modeldata.drop(['country','total_revenues','total_stay_in_nights'], axis=1, inplace = True)
-
-
-if 'modeldata' not in st.session_state:
-    st.session_state['modeldata'] = modeldata
 
 
 #Model data
