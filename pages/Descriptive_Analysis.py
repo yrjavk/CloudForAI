@@ -12,7 +12,7 @@ top_10_countries_canceled = cancelled_data['country'].value_counts()[:10]
 is_canceled_counts = data["is_canceled"].value_counts()
 cancelled_percentage = data["is_canceled"].value_counts(normalize = True)
 data['total_revenues'] = data['adr'] * (data['stays_in_weekend_nights'] + data['stays_in_week_nights'])
-lost_revenues = cancelled_data['total_revenues'].sum()
+#lost_revenues = cancelled_data['total_revenues'].sum()
 non_cancelled_data = data[data['is_canceled'] == 0]
 
 
