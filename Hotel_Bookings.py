@@ -84,8 +84,6 @@ data, mappings = factorize_columns(descriptive_data, ['hotel','meal','market_seg
 
 
 modeldata = descriptive_data
-modeldata.drop(['country','total_revenues','total_stay_in_nights'], axis=1, inplace = True)
-
 
 if 'modeldata' not in st.session_state:
     st.session_state['modeldata'] = modeldata
