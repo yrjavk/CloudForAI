@@ -49,7 +49,7 @@ descriptive_data['total_revenues'] = descriptive_data['adr'] * (descriptive_data
 
 descriptive_data['arrival_date_month'] = pd.to_datetime(descriptive_data.arrival_date_month, format='%B').dt.month
 descriptive_data['reservation_status_date']=descriptive_data['reservation_status_date'].astype('datetime64[ns]')
-descriptive_data.drop(['name','agent', 'company'], axis=1, inplace = True)
+descriptive_data.drop(['agent', 'company'], axis=1, inplace = True)
 descriptive_data['children'].fillna(descriptive_data['children'].median(), inplace=True)
 descriptive_data['children']=descriptive_data['children'].astype(int)
 mode_country=descriptive_data['country'].mode()[0]
