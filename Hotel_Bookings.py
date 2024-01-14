@@ -25,7 +25,7 @@ st.subheader('Raw data')
 
 @st.cache_data
 def load_data():
-    data = pd.read_csv("hotel_booking.csv")
+    data = pd.read_csv("C:\\Users\\Yrja\\Desktop\\Micro Degree AI\\Jaar4\\Cloud for AI\\Assignment\\Tasks\\hotel_booking.csv")
     return data
 
 data_load_state = st.text('Loading data...')
@@ -35,7 +35,7 @@ if st.checkbox("Show raw data first 5 rows"):
     st.write(rawdata.head())
 
 
-
+rawdata.drop(['email', 'credit_card', 'phone-number', 'name'], axis=1, inplace = True)
 if 'rawdata' not in st.session_state:
     st.session_state['rawdata'] = rawdata
 
@@ -49,7 +49,7 @@ descriptive_data['total_revenues'] = descriptive_data['adr'] * (descriptive_data
 
 descriptive_data['arrival_date_month'] = pd.to_datetime(descriptive_data.arrival_date_month, format='%B').dt.month
 descriptive_data['reservation_status_date']=descriptive_data['reservation_status_date'].astype('datetime64[ns]')
-descriptive_data.drop(['email', 'credit_card', 'phone-number', 'name','agent', 'company'], axis=1, inplace = True)
+descriptive_data.drop(['name','agent', 'company'], axis=1, inplace = True)
 descriptive_data['children'].fillna(descriptive_data['children'].median(), inplace=True)
 descriptive_data['children']=descriptive_data['children'].astype(int)
 mode_country=descriptive_data['country'].mode()[0]
