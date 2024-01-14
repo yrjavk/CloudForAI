@@ -12,9 +12,11 @@ Less cancellations. Easier to maintain staff scheduling. Simplify inventory mana
 ## Models used and metrics
 Linear Regression
 XGBOOST
-K-Means
+KNearest Neighbors
 
 RMSE
+
+## Deployment on Streamlit.io
 
 ## Contributors
 The contributors of this project are GitHub users: NineYearsOld, JordyCrthls and yrjavk.
