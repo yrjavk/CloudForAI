@@ -66,15 +66,17 @@ with tab2:
         plt.xticks(rotation=45, ha='right')
         st.pyplot(fig)
 
+        #bar chart
         st.subheader('Cancellation Count')
         st.bar_chart(descriptive_data['is_canceled'].value_counts())
 
+        #pie chart
         st.subheader('Top 10 countries with cancellations in %')
         fig = plt.figure(figsize = (6,6))
         plt.pie(top_10_countries_canceled,autopct = "%.2f",labels = top_10_countries_canceled.index)
         st.pyplot(fig)
 
-
+        #pie chart
         st.subheader('Top 10 countries revenue lost due to cancellation in %')
         top_10_countries_canceled_revenues = cancelled_data.groupby('country')['total_revenues'].sum()[:10]
         fig = plt.figure(figsize = (6,6))
