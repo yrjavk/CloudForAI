@@ -7,7 +7,7 @@ import seaborn as sns
 
 
 
-rawdata = st.session_state['rawdata']
+rawdata = st.session_state['df']
 st.markdown("# Descriptive Analysis")
 st.sidebar.markdown("# Descriptive Analysis")
 
