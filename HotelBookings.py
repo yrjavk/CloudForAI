@@ -25,7 +25,7 @@ data.isna().sum().sort_values(ascending=False)
 
 data.drop(['email', 'credit_card', 'phone-number', 'name'], axis=1, inplace = True)
 data['arrival_date_month'] = pd.to_datetime(data.arrival_date_month, format='%B').dt.month
-data['reservation_status_date']=data['reservation_status_date'].astype(np.datetime64)
+data['reservation_status_date']=data['reservation_status_date'].astype('datetime64[ns]')
 
 data.drop(['agent', 'company'], axis=1, inplace = True)
 
