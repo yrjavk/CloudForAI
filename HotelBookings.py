@@ -34,26 +34,26 @@ df = load_data()
 data_load_state.text('Loading data...done!')
 if st.checkbox("Show raw data first 5 rows"):
     st.subheader("Raw data")
-    st.write(data.head())
+    st.write(df.head())
 
 st.session_state['df'] = df
 
 
 
 
-data.drop(['email', 'credit_card', 'phone-number', 'name'], axis=1, inplace = True)
-data['arrival_date_month'] = pd.to_datetime(data.arrival_date_month, format='%B').dt.month
-data['reservation_status_date']=data['reservation_status_date'].astype('datetime64[ns]')
+df.drop(['email', 'credit_card', 'phone-number', 'name'], axis=1, inplace = True)
+df['arrival_date_month'] = pd.to_datetime(df.arrival_date_month, format='%B').dt.month
+df['reservation_status_date']=df['reservation_status_date'].astype('datetime64[ns]')
 
-data.drop(['agent', 'company'], axis=1, inplace = True)
+df.drop(['agent', 'company'], axis=1, inplace = True)
 
-data.hist(column='children')
+df.hist(column='children')
 
-data['children'].fillna(data['children'].median(), inplace=True)
-data['children']=data['children'].astype(int)
+df['children'].fillna(df['children'].median(), inplace=True)
+df['children']=df['children'].astype(int)
 
-mode_country=data['country'].mode()[0]
-data['country'] = data['country'].fillna(mode_country)
+mode_country=df['country'].mode()[0]
+df['country'] = df['country'].fillna(mode_country)
 
 def factorize_columns(data, columns_to_factorize):
     encoded_mappings = {}
@@ -76,7 +76,7 @@ def replace_undefined_with_mode(data, column_name):
 
 
 
-data, mappings = factorize_columns(data, ['hotel','meal','market_segment','distribution_channel','reserved_room_type','assigned_room_type', 'deposit_type', 'customer_type', 'reservation_status'])
+data, mappings = factorize_columns(df, ['hotel','meal','market_segment','distribution_channel','reserved_room_type','assigned_room_type', 'deposit_type', 'customer_type', 'reservation_status'])
 
 for column, mapping in mappings.items():
     print("Unique values:", mapping['unique_values'])
@@ -128,7 +128,8 @@ Xval, Xtest, yval, ytest = train_test_split(Xrest, yrest, test_size=0.5)
 
 lr = LinearRegression()
 lr.fit(Xtrain, ytrain)
-
+st.write(df.columns.tolist())
+st.session_state['lr_model'] = lr
 
 columns = Xtrain.columns.values.tolist()
 coefs = lr.coef_.ravel().tolist()
