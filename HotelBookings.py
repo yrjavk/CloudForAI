@@ -124,6 +124,7 @@ coefs = lr.coef_.ravel().tolist()
 
 
 lr.fit(Xtrain, ytrain)
+st.session_state['lr_model'] = lr
 
 def calculate_relative_error(rmse, y):
     y_range = y.max() - y.min()
@@ -145,6 +146,7 @@ RMSE(yval, y_pred_lr)
 
 xgb = xgboost.XGBRegressor()
 xgb.fit(Xtest, ytest)
+st.session_state['xgb_model'] = xgb
 
 y_pred_xgb = xgb.predict(Xtest)
 rmse_adr = RMSE(yval, y_pred_xgb)
@@ -160,6 +162,7 @@ RMSE(yval, y_pred_xgb)
 
 knn = KNeighborsRegressor(n_neighbors=5)
 knn.fit(Xtrain, ytrain)
+st.session_state['knn_model'] = knn
 
 y_pred_knn = knn.predict(Xtest)
 rmse_adr = RMSE(yval, y_pred_knn)
@@ -173,7 +176,3 @@ rmse_scores = cross_val_score(knn, Xtrain, ytrain, cv=kf, scoring='neg_root_mean
 
 
 RMSE(yval, y_pred_knn)
-
-st.session_state['kf_model'] = kf
-st.session_state['lr_model'] = lr
-st.session_state['knn_model'] = knn
