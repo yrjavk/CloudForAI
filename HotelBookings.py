@@ -26,7 +26,7 @@ st.subheader('Raw data')
 
 @st.cache_data
 def load_data():
-    data = pd.read_csv("hotel_booking.csv")
+    data = pd.read_csv("C:\\Users\\Yrja\\Desktop\\Micro Degree AI\\Jaar4\\Cloud for AI\\Assignment\\Cloud for AI Assignment\\CloudForAI\\hotel_booking.csv")
     data.drop(['email', 'credit_card', 'phone-number', 'name'], axis=1, inplace = True)
     return data
 
@@ -41,8 +41,8 @@ if 'df' not in st.session_state:
     st.session_state['df'] = df
 
 
-
 #data cleaning for descriptive analysis on streamlit
+
 df['arrival_date_month'] = pd.to_datetime(df.arrival_date_month, format='%B').dt.month
 df['total_revenues'] = df['adr'] * (df['stays_in_weekend_nights'] + df['stays_in_week_nights'])
 df['reservation_status_date']=df['reservation_status_date'].astype('datetime64[ns]')
@@ -51,11 +51,11 @@ df['children'].fillna(df['children'].median(), inplace=True)
 df['children']=df['children'].astype(int)
 mode_country=df['country'].mode()[0]
 df['country'] = df['country'].fillna(mode_country)
-df.drop(data['adr'].idxmax(), inplace = True)
+df.drop(df['adr'].idxmax(), inplace = True)
 df['total_stay_in_nights'] = df['stays_in_week_nights'] + df['stays_in_weekend_nights']
 
 
-descriptive_data = rawdata_cleaning(rawdata)
+descriptive_data = df
 if 'descriptive_data' not in st.session_state:
     st.session_state['descriptive_data'] = descriptive_data
 
@@ -81,8 +81,8 @@ def replace_undefined_with_mode(data, column_name):
 
 
 
-
-data, mappings = factorize_columns(df, ['hotel','meal','market_segment','distribution_channel','reserved_room_type','assigned_room_type', 'deposit_type', 'customer_type', 'reservation_status'])
+data = df
+data, mappings = factorize_columns(data, ['hotel','meal','market_segment','distribution_channel','reserved_room_type','assigned_room_type', 'deposit_type', 'customer_type', 'reservation_status'])
 cancelled_percentage = data["is_canceled"].value_counts(normalize = True)
 is_canceled_counts = data["is_canceled"].value_counts()
 cancelled_data = data[data['is_canceled'] == 1]
@@ -90,7 +90,7 @@ top_10_countries_canceled = cancelled_data['country'].value_counts()[:10]
 lost_revenues = cancelled_data['total_revenues'].sum()
 top_10_countries_canceled_revenues = cancelled_data.groupby('country')['total_revenues'].sum()[:10]
 current_revenues = data[data['is_canceled'] == 0]['total_revenues'].sum()
-data[data['is_canceled'] == 0]['is_repeated_guest'].sum()
+#data[data['is_canceled'] == 0]['is_repeated_guest'].sum()
 data.drop(['country','total_revenues','total_stay_in_nights'], axis=1, inplace = True)
 
 
@@ -107,7 +107,7 @@ Xval, Xtest, yval, ytest = train_test_split(Xrest, yrest, test_size=0.5)
 
 lr = LinearRegression()
 lr.fit(Xtrain, ytrain)
-st.write(df.columns.tolist())
+#st.write(df.columns.tolist())
 
 columns = Xtrain.columns.values.tolist()
 coefs = lr.coef_.ravel().tolist()

@@ -44,6 +44,7 @@ with tab1:
 
 
 descriptive_data = st.session_state['descriptive_data']
+
 cancelled_data = descriptive_data[descriptive_data['is_canceled'] == 1]
 is_canceled_counts = descriptive_data["is_canceled"].value_counts()
 cancelled_percentage = descriptive_data["is_canceled"].value_counts(normalize = True)
