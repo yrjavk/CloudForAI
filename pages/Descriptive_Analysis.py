@@ -6,7 +6,7 @@ import seaborn as sns
 
 if 'rawdata' not in st.session_state:
     # Get the data if you haven't
-    rawdata = pd.read_csv("C:\\Users\\Yrja\\Desktop\\Micro Degree AI\\Jaar4\\Cloud for AI\\Assignment\\Tasks\\hotel_booking.csv")
+    rawdata = pd.read_csv("hotel_booking.csv")
     # Save the data to session state
     st.session_state.rawdata = rawdata
 
