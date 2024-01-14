@@ -109,7 +109,7 @@ def make_prediction(form_value):
     prediction_lr = model_lr.predict(reformat_input(form_value))
     st.write(f'The linear regression predicted output is: {prediction_lr}')
     prediction_xgb = model_xgb.predict(reformat_input(form_value))
-    st.write(f'The kf predicted output is: {prediction_xgb}')
+    st.write(f'The xgb predicted output is: {prediction_xgb}')
     prediction_knn = model_knn.predict(reformat_input(form_value))
     st.write(f'The knn predicted output is: {prediction_knn}')
 
