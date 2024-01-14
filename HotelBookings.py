@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
@@ -8,7 +8,11 @@ from sklearn.neighbors import KNeighborsRegressor
 from sklearn.metrics import confusion_matrix, mean_squared_error
 from sklearn.model_selection import cross_val_score, KFold
 import xgboost
+import streamlit as st
 
+
+st.write("""
+         #Sales Model""")
 
 #batch data load functie
 data = pd.read_csv("hotel_booking.csv")
