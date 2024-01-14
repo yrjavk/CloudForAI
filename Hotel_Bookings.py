@@ -25,7 +25,7 @@ st.subheader('Raw data')
 
 @st.cache_data
 def load_data():
-    data = pd.read_csv("C:\\Users\\Yrja\\Desktop\\Micro Degree AI\\Jaar4\\Cloud for AI\\Assignment\\Tasks\\hotel_booking.csv")
+    data = pd.read_csv("hotel_booking.csv")
     return data
 
 data_load_state = st.text('Loading data...')
