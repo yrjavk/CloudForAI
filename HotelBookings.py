@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
-#import matplotlib.pyplot as plt
-#import seaborn as sns
+import matplotlib.pyplot as plt
+import seaborn as sns
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsRegressor
@@ -140,9 +140,8 @@ lr.fit(Xtrain, ytrain)
 
 
 columns = Xtrain.columns.values.tolist()
-print(columns)
 coefs = lr.coef_.ravel().tolist()
-print(coefs)
+
 
 plt.figure(figsize = (10,6))
 plt.barh(columns, coefs)
