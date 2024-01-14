@@ -26,7 +26,7 @@ st.subheader('Raw data')
 
 @st.cache_data
 def load_data():
-    data = pd.read_csv("C:\\Users\\Yrja\\Desktop\\Micro Degree AI\\Jaar4\\Cloud for AI\\Assignment\\Cloud for AI Assignment\\CloudForAI\\hotel_booking.csv")
+    data = pd.read_csv("hotel_booking.csv")
     data.drop(['email', 'credit_card', 'phone-number', 'name'], axis=1, inplace = True)
     return data
 
@@ -38,7 +38,7 @@ if st.checkbox("Show raw data first 5 rows"):
     st.write(df.head())
 
 if 'df' not in st.session_state:
-    st.session_state['df'] = df
+    st.session_state['df'] = df.copy()
 
 
 #data cleaning for descriptive analysis on streamlit
