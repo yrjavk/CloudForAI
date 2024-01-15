@@ -59,9 +59,11 @@ df['total_stay_in_nights'] = df['stays_in_week_nights'] + df['stays_in_weekend_n
 # remove outlier
 df.drop(df['adr'].idxmax(), inplace = True)
 
-
-
+st.subheader('Descriptive Analysis')
+data_load_state = st.text('Loading data...')
 descriptive_data = df.copy()
+data_load_state.text('Loading data...done!')
+
 if 'descriptive_data' not in st.session_state:
     st.session_state['descriptive_data'] = descriptive_data
 
@@ -78,7 +80,8 @@ def factorize_columns(data, columns_to_factorize):
     
 
 
-
+st.subheader('Modeling')
+data_load_state = st.text('Loading data...')
 #set categorical columns to numberical values
 df, mappings = factorize_columns(df, ['hotel','meal','market_segment','distribution_channel','reserved_room_type','assigned_room_type', 'deposit_type', 'customer_type', 'reservation_status'])
 #drop columns
@@ -114,7 +117,10 @@ coefs = lr.coef_.ravel().tolist()
 
 
 lr.fit(Xtrain, ytrain)
-st.session_state['lr_model'] = lr
+
+if 'lr_model' not in st.session_state:
+    st.session_state['lr_model'] = lr
+
 
 def calculate_relative_error(rmse, y):
     y_range = y.max() - y.min()
@@ -132,11 +138,15 @@ kf = KFold(n_splits=5, shuffle=True, random_state=42)
 rmse_scores_kf = cross_val_score(lr, Xtrain, ytrain, cv=kf, scoring='neg_root_mean_squared_error')
 
 
-RMSE(yval, y_pred_lr)
+rmse1=RMSE(yval, y_pred_lr)
 
 xgb = xgboost.XGBRegressor()
 xgb.fit(Xtest, ytest)
-st.session_state['xgb_model'] = xgb
+
+
+if 'xgb_model' not in st.session_state:
+    st.session_state['xgb_model'] = xgb
+
 
 y_pred_xgb = xgb.predict(Xtest)
 rmse_adr = RMSE(yval, y_pred_xgb)
@@ -148,11 +158,15 @@ kf = KFold(n_splits=5, shuffle=True, random_state=42)
 rmse_scores = cross_val_score(xgb, Xtrain, ytrain, cv=kf, scoring='neg_root_mean_squared_error')
 
 
-RMSE(yval, y_pred_xgb)
+rmse2=RMSE(yval, y_pred_xgb)
 
 knn = KNeighborsRegressor(n_neighbors=5)
 knn.fit(Xtrain, ytrain)
-st.session_state['knn_model'] = knn
+
+
+if 'knn_model' not in st.session_state:
+    st.session_state['knn_model'] = knn
+
 
 y_pred_knn = knn.predict(Xtest)
 rmse_adr = RMSE(yval, y_pred_knn)
@@ -165,4 +179,5 @@ rmse_scores = cross_val_score(knn, Xtrain, ytrain, cv=kf, scoring='neg_root_mean
 
 
 
-RMSE(yval, y_pred_knn)
+rmse3=RMSE(yval, y_pred_knn)
+data_load_state.text('Loading data...done!')

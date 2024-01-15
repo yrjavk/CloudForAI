@@ -3,10 +3,13 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+from streamlit_extras.switch_page_button import switch_page
 
-
-
-
+if 'df' not in st.session_state:
+    switch_page("Hotel Bookings")
+if 'descriptive_data' not in st.session_state:
+    switch_page("Hotel Bookings")
+    
 rawdata = st.session_state['df']
 descriptive_data = st.session_state['descriptive_data']
 
