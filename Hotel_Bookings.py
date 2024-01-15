@@ -10,7 +10,7 @@ from sklearn.model_selection import cross_val_score, KFold
 import xgboost
 import streamlit as st
 
-
+st.set_page_config(layout="wide")
 st.title('Hotel Bookings')
 st.markdown(
     """
@@ -43,29 +43,36 @@ if 'df' not in st.session_state:
 
 
 #data cleaning for descriptive analysis 
-#drop columns. Too many missing values
-df.drop(['agent', 'company'], axis=1, inplace = True)
-#replace missing values 
-df['children'].fillna(df['children'].median(), inplace=True)
-mode_country=df['country'].mode()[0]
-df['country'] = df['country'].fillna(mode_country)
-#set correct datatype
-df['children']=df['children'].astype(int)
-df['arrival_date_month'] = pd.to_datetime(df.arrival_date_month, format='%B').dt.month
-df['reservation_status_date']=df['reservation_status_date'].astype('datetime64[ns]')
-#add column total_revenues
-df['total_revenues'] = df['adr'] * (df['stays_in_weekend_nights'] + df['stays_in_week_nights'])
-df['total_stay_in_nights'] = df['stays_in_week_nights'] + df['stays_in_weekend_nights']
-# remove outlier
-df.drop(df['adr'].idxmax(), inplace = True)
+@st.cache_data
+def data_preparation(data):
+    #drop columns. Too many missing values
+    data.drop(['agent', 'company'], axis=1, inplace = True)
+    #set correct datatype
+    data['arrival_date_month'] = pd.to_datetime(data.arrival_date_month, format='%B').dt.month
+    data['reservation_status_date']=data['reservation_status_date'].astype('datetime64[ns]')
+    #add column total_revenues
+    data['total_revenues'] = data['adr'] * (data['stays_in_weekend_nights'] + data['stays_in_week_nights'])
+    data['total_stay_in_nights'] = data['stays_in_week_nights'] + data['stays_in_weekend_nights']
+    # remove outlier
+    data.drop(data['adr'].idxmax(), inplace = True)
+    return data
 
 st.subheader('Descriptive Analysis')
 data_load_state = st.text('Loading data...')
-descriptive_data = df.copy()
+descriptive_data = data_preparation(df.copy())
 data_load_state.text('Loading data...done!')
 
 if 'descriptive_data' not in st.session_state:
     st.session_state['descriptive_data'] = descriptive_data
+
+df = data_preparation(df)
+##data leakage? filling in missing values should be after train test split
+#replace missing values 
+df['children'].fillna(df['children'].median(), inplace=True)
+mode_country=df['country'].mode()[0]
+df['country'] = df['country'].fillna(mode_country)
+df['children']=df['children'].astype(int)
+
 
 @st.cache_data
 def factorize_columns(data, columns_to_factorize):
