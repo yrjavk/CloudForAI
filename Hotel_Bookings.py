@@ -41,21 +41,27 @@ if 'df' not in st.session_state:
     st.session_state['df'] = df.copy()
 
 
-#data cleaning for descriptive analysis on streamlit
 
-df['arrival_date_month'] = pd.to_datetime(df.arrival_date_month, format='%B').dt.month
-df['total_revenues'] = df['adr'] * (df['stays_in_weekend_nights'] + df['stays_in_week_nights'])
-df['reservation_status_date']=df['reservation_status_date'].astype('datetime64[ns]')
+#data cleaning for descriptive analysis 
+#drop columns. Too many missing values
 df.drop(['agent', 'company'], axis=1, inplace = True)
+#replace missing values 
 df['children'].fillna(df['children'].median(), inplace=True)
-df['children']=df['children'].astype(int)
 mode_country=df['country'].mode()[0]
 df['country'] = df['country'].fillna(mode_country)
-df.drop(df['adr'].idxmax(), inplace = True)
+#set correct datatype
+df['children']=df['children'].astype(int)
+df['arrival_date_month'] = pd.to_datetime(df.arrival_date_month, format='%B').dt.month
+df['reservation_status_date']=df['reservation_status_date'].astype('datetime64[ns]')
+#add column total_revenues
+df['total_revenues'] = df['adr'] * (df['stays_in_weekend_nights'] + df['stays_in_week_nights'])
 df['total_stay_in_nights'] = df['stays_in_week_nights'] + df['stays_in_weekend_nights']
+# remove outlier
+df.drop(df['adr'].idxmax(), inplace = True)
 
 
-descriptive_data = df
+
+descriptive_data = df.copy()
 if 'descriptive_data' not in st.session_state:
     st.session_state['descriptive_data'] = descriptive_data
 
@@ -70,28 +76,13 @@ def factorize_columns(data, columns_to_factorize):
 
     return data, encoded_mappings
     
-@st.cache_data
-def replace_undefined_with_mode(data, column_name):
-    mode_value = data[column_name].mode()[0]  # Get the mode (most frequent value)
-
-    # Replace "undefined" values with the mode
-    data[column_name] = data[column_name].replace('', mode_value)
-
-    return data
 
 
 
-data = df
-data, mappings = factorize_columns(data, ['hotel','meal','market_segment','distribution_channel','reserved_room_type','assigned_room_type', 'deposit_type', 'customer_type', 'reservation_status'])
-cancelled_percentage = data["is_canceled"].value_counts(normalize = True)
-is_canceled_counts = data["is_canceled"].value_counts()
-cancelled_data = data[data['is_canceled'] == 1]
-top_10_countries_canceled = cancelled_data['country'].value_counts()[:10]
-lost_revenues = cancelled_data['total_revenues'].sum()
-top_10_countries_canceled_revenues = cancelled_data.groupby('country')['total_revenues'].sum()[:10]
-current_revenues = data[data['is_canceled'] == 0]['total_revenues'].sum()
-#data[data['is_canceled'] == 0]['is_repeated_guest'].sum()
-data.drop(['country','total_revenues','total_stay_in_nights'], axis=1, inplace = True)
+#set categorical columns to numberical values
+df, mappings = factorize_columns(df, ['hotel','meal','market_segment','distribution_channel','reserved_room_type','assigned_room_type', 'deposit_type', 'customer_type', 'reservation_status'])
+#drop columns
+df.drop(['country','total_revenues','total_stay_in_nights'], axis=1, inplace = True)
 
 
 
@@ -99,15 +90,14 @@ def RMSE(y,y_pred):
   mse=mean_squared_error(y, y_pred)
   return np.sqrt(mse)
 
-y = data[['adr']]
-X = data.drop(['adr', 'reservation_status_date'],axis=1)
+y = df[['adr']]
+X = df.drop(['adr', 'reservation_status_date'],axis=1)
 
 Xtrain, Xrest, ytrain, yrest = train_test_split(X, y, test_size=0.2)
 Xval, Xtest, yval, ytest = train_test_split(Xrest, yrest, test_size=0.5)
 
 lr = LinearRegression()
 lr.fit(Xtrain, ytrain)
-#st.write(df.columns.tolist())
 
 columns = Xtrain.columns.values.tolist()
 coefs = lr.coef_.ravel().tolist()
@@ -139,7 +129,7 @@ relative_error = calculate_relative_error(rmse_adr, y)
 
 
 kf = KFold(n_splits=5, shuffle=True, random_state=42)
-rmse_scores = cross_val_score(lr, Xtrain, ytrain, cv=kf, scoring='neg_root_mean_squared_error')
+rmse_scores_kf = cross_val_score(lr, Xtrain, ytrain, cv=kf, scoring='neg_root_mean_squared_error')
 
 
 RMSE(yval, y_pred_lr)

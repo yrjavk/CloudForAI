@@ -8,6 +8,18 @@ import seaborn as sns
 
 
 rawdata = st.session_state['df']
+descriptive_data = st.session_state['descriptive_data']
+
+cancelled_data = descriptive_data[descriptive_data['is_canceled'] == 1]
+is_canceled_counts = descriptive_data["is_canceled"].value_counts()
+cancelled_percentage = descriptive_data["is_canceled"].value_counts(normalize = True)
+lost_revenues = cancelled_data['total_revenues'].sum()
+non_cancelled_data = descriptive_data[descriptive_data['is_canceled'] == 0]
+top_10_countries_canceled = cancelled_data['country'].value_counts()[:10]
+top_10_countries_canceled_revenues = cancelled_data.groupby('country')['total_revenues'].sum()[:10]
+current_revenues = descriptive_data[descriptive_data['is_canceled'] == 0]['total_revenues'].sum()
+
+
 st.markdown("# Descriptive Analysis")
 st.sidebar.markdown("# Descriptive Analysis")
 
@@ -41,17 +53,6 @@ with tab1:
         st.header("Missing Values")
         st.text("")
         st.write(rawdata.isna().sum().sort_values(ascending=False))
-
-
-descriptive_data = st.session_state['descriptive_data']
-
-cancelled_data = descriptive_data[descriptive_data['is_canceled'] == 1]
-is_canceled_counts = descriptive_data["is_canceled"].value_counts()
-cancelled_percentage = descriptive_data["is_canceled"].value_counts(normalize = True)
-lost_revenues = cancelled_data['total_revenues'].sum()
-non_cancelled_data = descriptive_data[descriptive_data['is_canceled'] == 0]
-top_10_countries_canceled = cancelled_data['country'].value_counts()[:10]
-top_10_countries_canceled_revenues = cancelled_data.groupby('country')['total_revenues'].sum()[:10]
 
 
 with tab2:
