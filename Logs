@@ -17,7 +17,11 @@ Finalize task 2.
 
 to do's
 - creating a more production ready code
-- Streamlit.io
+  *logging
+  *testing
+  *error-handling
+  *pipelines
+
 
 _________________________________________________________________________
 
@@ -26,7 +30,6 @@ _________________________________________________________________________
 
 Jordy: 
 * Found the dataset on Kaggle
-* Outline task 3
 * Predictions page on Streamlit
 
 Raymond: 
@@ -35,7 +38,6 @@ Raymond:
 * Outline task 2
 * Teaches modeling to the others
 * Evaluations page on Streamlit
-* pipelines
 
 Yrja: 
 * Set up meetings and got into contact with teammembers 
@@ -44,7 +46,7 @@ Yrja:
 * XGBoost model 
 * Descriptive analysis page on Streamlit
 * Hotel Bookings page on Streamlit
-* got it running on Streamlit cloud
+* Got app running on Streamlit cloud
 
 
 
