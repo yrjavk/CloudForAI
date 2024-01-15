@@ -4,7 +4,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 from streamlit_extras.switch_page_button import switch_page
-import plotly.express as px
+
 
 if 'df' not in st.session_state:
     switch_page("Hotel Bookings")
