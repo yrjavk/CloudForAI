@@ -77,7 +77,7 @@ def reformat_input(form):
 
 
 def create_form():
-    with st.sidebar.form(key='my_form'):
+    with st.form(key='my_form'):
         st.markdown("# Fill in the form")
 
         # Create input elements with labels that match the data keys and default values from data
@@ -107,7 +107,7 @@ def create_form():
         }
 
         if not raw_inputs.get('arrival_date') < raw_inputs.get('depart_date'):
-            st.sidebar.error('Error: Departure date must fall after arrival date.')
+            st.error('Error: Departure date must fall after arrival date.')
         else:
             submitted = st.form_submit_button(label='Submit')
 
