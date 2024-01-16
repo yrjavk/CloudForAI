@@ -1,24 +1,15 @@
 import datetime
 import streamlit as st
-import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
 from streamlit_extras.switch_page_button import switch_page
 
 if 'df' not in st.session_state:
     switch_page("Hotel Bookings")
-#if 'lr_model' not in st.session_state:
-#    switch_page("Hotel Bookings")
-#if 'xgb_model' not in st.session_state:
-#    switch_page("Hotel Bookings")
 if 'knn_model' not in st.session_state:
     switch_page("Hotel Bookings")
             
 
 data = st.session_state['df']
-#model_lr = st.session_state['lr_model']
-#model_xgb = st.session_state['xgb_model']
 model_knn = st.session_state['knn_model']
 
 def get_week_nights(start_date, stop_date):
@@ -72,57 +63,55 @@ def reformat_input(form):
         'total_of_special_requests': [form.get('total_of_special_requests')],
         'reservation_status': [form.get('reservation_status')],
     }
-    st.sidebar.write(pd.DataFrame(reformatted_data).info())
     return pd.DataFrame(reformatted_data)
 
 
-def create_form():
-    with st.form(key='my_form'):
-        st.markdown("# Fill in the form")
+def init_page():
+    col1, col2 = st.columns(2)
+    with col1:
+        with st.form(key='my_form'):
+            st.markdown("# Fill in the form")
 
-        # Create input elements with labels that match the data keys and default values from data
-        raw_inputs = {
-            "hotel": st.number_input("Hotel", step=1, min_value=0, max_value=2),
-            "is_canceled": st.checkbox("Is canceled"),
-            "lead_time": st.number_input("Lead time", step=1, min_value=0),
-            "arrival_date": st.date_input('Arrival Date', datetime.date.today()),
-            "depart_date": st.date_input('Departing date', datetime.date.today() + datetime.timedelta(days=5)),
-            "adults": st.number_input("Amount of adults", step=1, min_value=0),
-            "children": st.number_input("Amount of children", step=1, min_value=0),
-            "babies": st.number_input("Amount of babies", step=1, min_value=0),
-            "meal": st.number_input("Meal", step=1, min_value=0),
-            "market_segment": st.number_input("Market segment", step=1, min_value=0),
-            "distribution_channel": st.number_input("Distribution Channel", step=1, min_value=0),
-            "previous_cancellations": st.number_input("Previous Cancellations", step=1, min_value=0),
-            "previous_bookings_not_canceled": st.number_input("Previous bookings not canceled", step=1, min_value=0),
-            "reserved_room_type": st.number_input("Room Type", step=1, min_value=0),
-            "assigned_room_type": st.number_input("Room type assigned", step=1, min_value=0),
-            "booking_changes": st.checkbox("Booking changes"),
-            "deposit_type": st.number_input("Deposit type", step=1, min_value=0),
-            "days_in_waiting_list": st.number_input("Days on waiting list", step=1, min_value=0),
-            "customer_type": st.number_input("Customer type", step=1, min_value=0),
-            "required_car_parking_spaces": st.number_input("Required parking spaces", step=1, min_value=0),
-            "total_of_special_requests": st.number_input("Amount of special requests", step=1, min_value=0),
-            "reservation_status": st.number_input("Reservation status", step=1, min_value=0),
-        }
+            # Create input elements with labels that match the data keys and default values from data
+            raw_inputs = {
+                "hotel": st.number_input("Hotel", step=1, min_value=0, max_value=2),
+                "is_canceled": st.checkbox("Is canceled"),
+                "lead_time": st.number_input("Lead time", step=1, min_value=0),
+                "arrival_date": st.date_input('Arrival Date', datetime.date.today()),
+                "depart_date": st.date_input('Departing date', datetime.date.today() + datetime.timedelta(days=5)),
+                "adults": st.number_input("Amount of adults", step=1, min_value=0),
+                "children": st.number_input("Amount of children", step=1, min_value=0),
+                "babies": st.number_input("Amount of babies", step=1, min_value=0),
+                "meal": st.number_input("Meal", step=1, min_value=0),
+                "market_segment": st.number_input("Market segment", step=1, min_value=0),
+                "distribution_channel": st.number_input("Distribution Channel", step=1, min_value=0),
+                "previous_cancellations": st.number_input("Previous Cancellations", step=1, min_value=0),
+                "previous_bookings_not_canceled": st.number_input("Previous bookings not canceled", step=1, min_value=0),
+                "reserved_room_type": st.number_input("Room Type", step=1, min_value=0),
+                "assigned_room_type": st.number_input("Room type assigned", step=1, min_value=0),
+                "booking_changes": st.checkbox("Booking changes"),
+                "deposit_type": st.number_input("Deposit type", step=1, min_value=0),
+                "days_in_waiting_list": st.number_input("Days on waiting list", step=1, min_value=0),
+                "customer_type": st.number_input("Customer type", step=1, min_value=0),
+                "required_car_parking_spaces": st.number_input("Required parking spaces", step=1, min_value=0),
+                "total_of_special_requests": st.number_input("Amount of special requests", step=1, min_value=0),
+                "reservation_status": st.number_input("Reservation status", step=1, min_value=0),
+            }
 
-        if not raw_inputs.get('arrival_date') < raw_inputs.get('depart_date'):
-            st.error('Error: Departure date must fall after arrival date.')
-        else:
-            submitted = st.form_submit_button(label='Submit')
+            if not raw_inputs.get('arrival_date') < raw_inputs.get('depart_date'):
+                st.error('Error: Departure date must fall after arrival date.')
+            else:
+                submitted = st.form_submit_button(label='Submit')
 
-    if submitted:
-        make_prediction(raw_inputs)
+        if submitted:
+            make_prediction(raw_inputs, col2)
 
 
-def make_prediction(form_value):
-    #prediction_lr = model_lr.predict(reformat_input(form_value))
-    #st.write(f'The linear regression predicted output is: {prediction_lr}')
-    #prediction_xgb = model_xgb.predict(reformat_input(form_value))
-    #st.write(f'The xgb predicted output is: {prediction_xgb}')
-    prediction_knn = model_knn.predict(reformat_input(form_value))
-    st.write(f'The knn predicted output is: {prediction_knn}')
+def make_prediction(form_value, col):
+    with col:
+        prediction_knn = model_knn.predict(reformat_input(form_value))[0][0]
+        st.write(f'The predicted price is €{prediction_knn} per night')
 
 
 if __name__ == "__main__":
-    create_form()
+    init_page()
