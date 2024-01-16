@@ -4,8 +4,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 import xgboost 
 from sklearn.neighbors import KNeighborsRegressor
-from sklearn.metrics import confusion_matrix, mean_squared_error
-from sklearn.model_selection import cross_val_score, KFold
+from sklearn.metrics import mean_squared_error
 import streamlit as st
 
 
@@ -90,6 +89,7 @@ data_load_state = st.text('Modeling data...')
 
 #set categorical columns to numberical values
 df, mappings = factorize_columns(df, ['hotel','meal','market_segment','distribution_channel','reserved_room_type','assigned_room_type', 'deposit_type', 'customer_type', 'reservation_status'])
+st.session_state['mappings'] = mappings
 
 #drop columns used in visualizations only 
 df.drop(['country','total_revenues','total_stay_in_nights'], axis=1, inplace = True)
