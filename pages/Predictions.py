@@ -3,11 +3,16 @@ import streamlit as st
 import pandas as pd
 from streamlit_extras.switch_page_button import switch_page
 
+
 if 'df' not in st.session_state:
+    switch_page("Hotel Bookings")
+if 'r_model' not in st.session_state:
+    switch_page("Hotel Bookings")
+if 'xgb_model' not in st.session_state:
     switch_page("Hotel Bookings")
 if 'knn_model' not in st.session_state:
     switch_page("Hotel Bookings")
-            
+
 
 data = st.session_state['df']
 model_knn = st.session_state['knn_model']
