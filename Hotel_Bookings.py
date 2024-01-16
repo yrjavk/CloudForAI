@@ -1,16 +1,14 @@
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
-from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.metrics import confusion_matrix, mean_squared_error
 from sklearn.model_selection import cross_val_score, KFold
-import xgboost
 import streamlit as st
 
+
 st.set_page_config(layout="wide")
+
 st.title('Hotel Bookings')
 st.markdown(
     """
@@ -21,17 +19,21 @@ st.markdown(
 
 """
 )
-st.sidebar.markdown("# Hotel Bookings")
+st.sidebar.markdown('# Hotel Bookings')
 st.subheader('Raw data')
 
+
+
 @st.cache_data
-def load_data():
-    data = pd.read_csv("hotel_booking.csv")
+def load_csv_data(filename):
+    data = pd.read_csv(filename)
     data.drop(['email', 'credit_card', 'phone-number', 'name'], axis=1, inplace = True)
     return data
 
+
+
 data_load_state = st.text('Loading data...')
-df = load_data()
+df = load_csv_data('hotel_booking.csv')
 data_load_state.text('Loading data...done!')
 
 if st.checkbox("Show raw data first 5 rows"):
@@ -66,12 +68,6 @@ if 'descriptive_data' not in st.session_state:
     st.session_state['descriptive_data'] = descriptive_data
 
 df = data_preparation(df)
-##data leakage? filling in missing values should be after train test split
-#replace missing values 
-df['children'].fillna(df['children'].median(), inplace=True)
-mode_country=df['country'].mode()[0]
-df['country'] = df['country'].fillna(mode_country)
-df['children']=df['children'].astype(int)
 
 
 @st.cache_data
@@ -86,47 +82,32 @@ def factorize_columns(data, columns_to_factorize):
     return data, encoded_mappings
     
 
-
 st.subheader('Modeling')
 data_load_state = st.text('Loading data...')
+
 #set categorical columns to numberical values
 df, mappings = factorize_columns(df, ['hotel','meal','market_segment','distribution_channel','reserved_room_type','assigned_room_type', 'deposit_type', 'customer_type', 'reservation_status'])
-#drop columns
-df.drop(['country','total_revenues','total_stay_in_nights'], axis=1, inplace = True)
 
+#drop columns used in visualizations only 
+df.drop(['country','total_revenues','total_stay_in_nights'], axis=1, inplace = True)
 
 
 def RMSE(y,y_pred):
   mse=mean_squared_error(y, y_pred)
   return np.sqrt(mse)
 
+
 y = df[['adr']]
-X = df.drop(['adr', 'reservation_status_date'],axis=1)
+X = df.drop(['adr', 'reservation_status_date',"is_repeated_guest"],axis=1)
 
 Xtrain, Xrest, ytrain, yrest = train_test_split(X, y, test_size=0.2)
 Xval, Xtest, yval, ytest = train_test_split(Xrest, yrest, test_size=0.5)
 
-lr = LinearRegression()
-lr.fit(Xtrain, ytrain)
-
-columns = Xtrain.columns.values.tolist()
-coefs = lr.coef_.ravel().tolist()
-
-
-X.drop(["is_repeated_guest"], axis=1, inplace = True)
-
-Xtrain, Xrest, ytrain, yrest = train_test_split(X, y, test_size=0.2)
-Xval, Xtest, yval, ytest = train_test_split(Xrest, yrest, test_size=0.5)
-lr.fit(Xtrain, ytrain)
-
-columns = Xtrain.columns.values.tolist()
-coefs = lr.coef_.ravel().tolist()
-
-
-lr.fit(Xtrain, ytrain)
-
-if 'lr_model' not in st.session_state:
-    st.session_state['lr_model'] = lr
+##avoid dataleakage. filling in missing values after train test split
+Xtrain['children'].fillna(Xtrain['children'].median(), inplace=True)
+Xtest['children'].fillna(Xtest['children'].median(), inplace=True)
+Xtrain['children']=Xtrain['children'].astype(int)
+Xtest['children']=Xtest['children'].astype(int)
 
 
 def calculate_relative_error(rmse, y):
@@ -135,56 +116,15 @@ def calculate_relative_error(rmse, y):
 
     return relative_error
 
-y_pred_lr = lr.predict(Xtest)
-rmse_adr = RMSE(yval, y_pred_lr)
-relative_error = calculate_relative_error(rmse_adr, y)
-
-
-
-kf = KFold(n_splits=5, shuffle=True, random_state=42)
-rmse_scores_kf = cross_val_score(lr, Xtrain, ytrain, cv=kf, scoring='neg_root_mean_squared_error')
-
-
-rmse1=RMSE(yval, y_pred_lr)
-
-xgb = xgboost.XGBRegressor()
-xgb.fit(Xtest, ytest)
-
-
-if 'xgb_model' not in st.session_state:
-    st.session_state['xgb_model'] = xgb
-
-
-y_pred_xgb = xgb.predict(Xtest)
-rmse_adr = RMSE(yval, y_pred_xgb)
-relative_error = calculate_relative_error(rmse_adr, y)
-
-
-
-kf = KFold(n_splits=5, shuffle=True, random_state=42)
-rmse_scores = cross_val_score(xgb, Xtrain, ytrain, cv=kf, scoring='neg_root_mean_squared_error')
-
-
-rmse2=RMSE(yval, y_pred_xgb)
-
 knn = KNeighborsRegressor(n_neighbors=5)
 knn.fit(Xtrain, ytrain)
 
-
 if 'knn_model' not in st.session_state:
     st.session_state['knn_model'] = knn
-
 
 y_pred_knn = knn.predict(Xtest)
 rmse_adr = RMSE(yval, y_pred_knn)
 relative_error = calculate_relative_error(rmse_adr, y)
 
 
-
-kf = KFold(n_splits=5, shuffle=True, random_state=42)
-rmse_scores = cross_val_score(knn, Xtrain, ytrain, cv=kf, scoring='neg_root_mean_squared_error')
-
-
-
-rmse3=RMSE(yval, y_pred_knn)
 data_load_state.text('Loading data...done!')
