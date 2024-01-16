@@ -1,7 +1,7 @@
 import streamlit as st
 import joblib
 
-st.markdown("# Evaluations")
+st.markdown("# Evaluations...live edit ?")
 st.sidebar.markdown("# Evaluations")
 
 lr_model = joblib.load('models/lr_model.joblib')
