@@ -12,15 +12,17 @@ st.set_page_config(layout="wide")
 st.title('Hotel Bookings')
 st.markdown(
     """
-    Welcome to our app to predict the average daily rate of a hotel booking.
-    ### Raw Data Source
-    Check out this [Kaggle Page](https://www.kaggle.com/datasets/mojtaba142/hotel-booking) for the source of the raw data. 
+    Welcome to our app to predict the average daily rate of a hotel booking.  \n
+    In the sidebar you can find different pages to explore the data, make predictions and the evaluations of the model. 
+    
+    ## Raw Data Source
+    Check out this [Kaggle Page](https://www.kaggle.com/datasets/mojtaba142/hotel-booking) for the source of the raw data used in this app. 
 
 
 """
 )
 st.sidebar.markdown('# Hotel Bookings')
-st.subheader('Raw data')
+st.header('Loading data')
 
 
 
@@ -31,10 +33,9 @@ def load_csv_data(filename):
     return data
 
 
-
-data_load_state = st.text('Loading data...')
+data_load_state = st.text('Loading raw data...')
 df = load_csv_data('hotel_booking.csv')
-data_load_state.text('Loading data...done!')
+data_load_state.text('Loading raw data...done!')
 
 if st.checkbox("Show raw data first 5 rows"):
     st.write(df.head())
@@ -59,10 +60,10 @@ def data_preparation(data):
     data.drop(data['adr'].idxmax(), inplace = True)
     return data
 
-st.subheader('Descriptive Analysis')
-data_load_state = st.text('Loading data...')
+
+data_load_state = st.text('Loading descriptive data...')
 descriptive_data = data_preparation(df.copy())
-data_load_state.text('Loading data...done!')
+data_load_state.text('Loading descriptive data...done!')
 
 if 'descriptive_data' not in st.session_state:
     st.session_state['descriptive_data'] = descriptive_data
@@ -82,8 +83,8 @@ def factorize_columns(data, columns_to_factorize):
     return data, encoded_mappings
     
 
-st.subheader('Modeling')
-data_load_state = st.text('Loading data...')
+st.header('Modeling Data')
+data_load_state = st.text('Modeling data...')
 
 #set categorical columns to numberical values
 df, mappings = factorize_columns(df, ['hotel','meal','market_segment','distribution_channel','reserved_room_type','assigned_room_type', 'deposit_type', 'customer_type', 'reservation_status'])
@@ -98,7 +99,7 @@ def RMSE(y,y_pred):
 
 
 y = df[['adr']]
-X = df.drop(['adr', 'reservation_status_date',"is_repeated_guest"],axis=1)
+X = df.drop(['adr', 'reservation_status_date','is_repeated_guest'],axis=1)
 
 Xtrain, Xrest, ytrain, yrest = train_test_split(X, y, test_size=0.2)
 Xval, Xtest, yval, ytest = train_test_split(Xrest, yrest, test_size=0.5)
@@ -127,4 +128,4 @@ rmse_adr = RMSE(yval, y_pred_knn)
 relative_error = calculate_relative_error(rmse_adr, y)
 
 
-data_load_state.text('Loading data...done!')
+data_load_state.text('Modeling data...done!')
