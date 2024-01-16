@@ -11,6 +11,7 @@ if 'knn_model' not in st.session_state:
 
 data = st.session_state['df']
 model_knn = st.session_state['knn_model']
+mappings = st.session_state['mappings']
 
 def get_week_nights(start_date, stop_date):
     week_nights = 0
@@ -24,7 +25,7 @@ def get_week_nights(start_date, stop_date):
     return week_nights
 
 
-def get_weekend_nigts(start_date, stop_date):
+def get_weekend_nights(start_date, stop_date):
     weekend_nights = 0
     current_date = start_date
     while current_date <= stop_date:
@@ -43,7 +44,7 @@ def reformat_input(form):
         'arrival_date_month': [form.get('arrival_date').month],
         'arrival_date_week_number': [form.get('arrival_date').isocalendar()[1]],
         'arrival_date_day_of_month': [form.get('arrival_date').day],
-        'stays_in_weekend_nights': [get_weekend_nigts(form.get('arrival_date'), form.get('depart_date'))],
+        'stays_in_weekend_nights': [get_weekend_nights(form.get('arrival_date'), form.get('depart_date'))],
         'stays_in_week_nights': [get_week_nights(form.get('arrival_date'), form.get('depart_date'))],
         'adults': [form.get('adults')],
         'children': [form.get('children')],
@@ -74,7 +75,7 @@ def init_page():
 
             # Create input elements with labels that match the data keys and default values from data
             raw_inputs = {
-                "hotel": st.number_input("Hotel", step=1, min_value=0, max_value=2),
+                "hotel": st.selectbox("Hotel", mappings["hotel"]["unique_values"]),
                 "is_canceled": st.checkbox("Is canceled"),
                 "lead_time": st.number_input("Lead time", step=1, min_value=0),
                 "arrival_date": st.date_input('Arrival Date', datetime.date.today()),
@@ -82,20 +83,20 @@ def init_page():
                 "adults": st.number_input("Amount of adults", step=1, min_value=0),
                 "children": st.number_input("Amount of children", step=1, min_value=0),
                 "babies": st.number_input("Amount of babies", step=1, min_value=0),
-                "meal": st.number_input("Meal", step=1, min_value=0),
-                "market_segment": st.number_input("Market segment", step=1, min_value=0),
-                "distribution_channel": st.number_input("Distribution Channel", step=1, min_value=0),
+                "meal": st.selectbox("Meal", mappings["meal"]["unique_values"]),
+                "market_segment": st.selectbox("Market segment", mappings["market_segment"]["unique_values"]),
+                "distribution_channel": st.selectbox("Distribution Channel", mappings["distribution_channel"]["unique_values"]),
                 "previous_cancellations": st.number_input("Previous Cancellations", step=1, min_value=0),
                 "previous_bookings_not_canceled": st.number_input("Previous bookings not canceled", step=1, min_value=0),
-                "reserved_room_type": st.number_input("Room Type", step=1, min_value=0),
-                "assigned_room_type": st.number_input("Room type assigned", step=1, min_value=0),
+                "reserved_room_type": st.selectbox("Room Type", mappings["reserved_room_type"]["unique_values"]),
+                "assigned_room_type": st.selectbox("Room type assigned", mappings["assigned_room_type"]["unique_values"]),
                 "booking_changes": st.checkbox("Booking changes"),
-                "deposit_type": st.number_input("Deposit type", step=1, min_value=0),
+                "deposit_type": st.selectbox("Deposit type", mappings["deposit_type"]["unique_values"]),
                 "days_in_waiting_list": st.number_input("Days on waiting list", step=1, min_value=0),
-                "customer_type": st.number_input("Customer type", step=1, min_value=0),
+                "customer_type": st.selectbox("Customer type", mappings["customer_type"]["unique_values"]),
                 "required_car_parking_spaces": st.number_input("Required parking spaces", step=1, min_value=0),
                 "total_of_special_requests": st.number_input("Amount of special requests", step=1, min_value=0),
-                "reservation_status": st.number_input("Reservation status", step=1, min_value=0),
+                "reservation_status": st.selectbox("Reservation status", mappings["reservation_status"]["unique_values"]),
             }
 
             if not raw_inputs.get('arrival_date') < raw_inputs.get('depart_date'):
