@@ -8,17 +8,17 @@ from streamlit_extras.switch_page_button import switch_page
 
 if 'df' not in st.session_state:
     switch_page("Hotel Bookings")
-if 'lr_model' not in st.session_state:
-    switch_page("Hotel Bookings")
-if 'xgb_model' not in st.session_state:
-    switch_page("Hotel Bookings")
+#if 'lr_model' not in st.session_state:
+#    switch_page("Hotel Bookings")
+#if 'xgb_model' not in st.session_state:
+#    switch_page("Hotel Bookings")
 if 'knn_model' not in st.session_state:
     switch_page("Hotel Bookings")
             
 
 data = st.session_state['df']
-model_lr = st.session_state['lr_model']
-model_xgb = st.session_state['xgb_model']
+#model_lr = st.session_state['lr_model']
+#model_xgb = st.session_state['xgb_model']
 model_knn = st.session_state['knn_model']
 
 def get_week_nights(start_date, stop_date):
@@ -116,10 +116,10 @@ def create_form():
 
 
 def make_prediction(form_value):
-    prediction_lr = model_lr.predict(reformat_input(form_value))
-    st.write(f'The linear regression predicted output is: {prediction_lr}')
-    prediction_xgb = model_xgb.predict(reformat_input(form_value))
-    st.write(f'The xgb predicted output is: {prediction_xgb}')
+    #prediction_lr = model_lr.predict(reformat_input(form_value))
+    #st.write(f'The linear regression predicted output is: {prediction_lr}')
+    #prediction_xgb = model_xgb.predict(reformat_input(form_value))
+    #st.write(f'The xgb predicted output is: {prediction_xgb}')
     prediction_knn = model_knn.predict(reformat_input(form_value))
     st.write(f'The knn predicted output is: {prediction_knn}')
 
