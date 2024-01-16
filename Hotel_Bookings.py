@@ -1,6 +1,8 @@
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+import xgboost 
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.metrics import mean_squared_error
 import streamlit as st
@@ -117,15 +119,39 @@ def calculate_relative_error(rmse, y):
 
     return relative_error
 
+y_range = y.max() - y.min()
+
+lr = LinearRegression()
+lr.fit(Xtrain, ytrain)
+
+#y_pred_lr = lr.predict(Xval)
+#rmse_lr = RMSE(yval, y_pred_lr)
+#relative_error_lr = calculate_relative_error(rmse_lr, y_range)
+
 knn = KNeighborsRegressor(n_neighbors=5)
 knn.fit(Xtrain, ytrain)
 
+#y_pred_knn = knn.predict(Xtest)
+#rmse_knn = RMSE(yval, y_pred_knn)
+#relative_error_knn = calculate_relative_error(rmse_knn, y)
+
+
+xgb = xgboost.XGBRegressor()
+xgb.fit(Xtrain, ytrain)
+
+#y_pred_xgb = xgb.predict(Xval)
+#rmse_xgb = RMSE(yval, y_pred_xgb)
+#relative_error_xgb = calculate_relative_error(rmse_xgb, y_range)
+
+
+if 'lr_model' not in st.session_state:
+    st.session_state['lr_model'] = lr
+if 'xgb_model' not in st.session_state:
+    st.session_state['xgb_model'] = xgb
 if 'knn_model' not in st.session_state:
     st.session_state['knn_model'] = knn
 
-y_pred_knn = knn.predict(Xtest)
-rmse_adr = RMSE(yval, y_pred_knn)
-relative_error = calculate_relative_error(rmse_adr, y)
+
 
 
 data_load_state.text('Modeling data...done!')
