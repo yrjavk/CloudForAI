@@ -4,7 +4,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 from streamlit_extras.switch_page_button import switch_page
-import plotly.express as px
+
 
 if 'df' not in st.session_state:
     switch_page("Hotel Bookings")
@@ -105,7 +105,7 @@ with tab2:
     if descriptive_data is not None:
 
         st.write('Lost revenue due to cancellations: ', lost_revenues)
-        st.write('total revenue non cancelled entries: ', current_revenues)
+        st.write('Total revenue non cancelled entries: ', current_revenues)
 
         col1, col2 = st.columns(2)
         with col1:
