@@ -118,7 +118,7 @@ def init_page():
 def make_prediction(form_value, col):
     with col:
         prediction_knn = model_knn.predict(reformat_input(form_value))[0][0]
-        st.write(f'The predicted price is €{prediction_knn} per night (knn)')
+        #st.write(f'The predicted price is €{prediction_knn} per night (knn)')
         #prediction_lr = model_lr.predict(reformat_input(form_value))
         #st.write(f'The predicted price is €{prediction_lr} per night (lr)')[0][0]
         prediction_xgb = model_xgb.predict(reformat_input(form_value))
