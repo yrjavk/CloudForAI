@@ -4,7 +4,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 from streamlit_extras.switch_page_button import switch_page
-#from utils import load_csv_data, factorize_columns, RMSE, calculate_relative_error
 
 #load data
 @st.cache_data
