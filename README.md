@@ -19,8 +19,6 @@ KNearest Neighbors<br/>
 RMSE
 
 ## Deployment on Streamlit.io
-We have an app running about this topic. The app will predict the average daily rate based on the parameters filled in. The feedback will be from our XGB model that had the best results. <br />
-https://cloudforai-ujg3jhutjrgqcgeinmta3j.streamlit.app/
 
 ## Contributors
 The contributors of this project are GitHub users: NineYearsOld, JordyCrthls and yrjavk.
