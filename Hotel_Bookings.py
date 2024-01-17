@@ -132,9 +132,9 @@ knn.fit(Xtrain, ytrain)
 xgb = xgboost.XGBRegressor()
 xgb.fit(Xtrain, ytrain)
 
-r_model = joblib.load('models/lr_model.joblib')
-if 'r_model' not in st.session_state:
-    st.session_state['r_model'] = df.copy()
+lr_model = joblib.load('models/lr_model.joblib')
+if 'lr_model' not in st.session_state:
+    st.session_state['lr_model'] = df.copy()
 xgb_model = joblib.load('models/xgb_model.joblib')
 if 'xgb_model' not in st.session_state:
     st.session_state['xgb_model'] = xgb_model
