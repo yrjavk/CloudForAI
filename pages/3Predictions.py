@@ -1,23 +1,11 @@
 import datetime
 import streamlit as st
 import pandas as pd
-from streamlit_extras.switch_page_button import switch_page
+import joblib
 
-
-if 'df' not in st.session_state:
-    switch_page("Hotel Bookings")
-if 'lr_model' not in st.session_state:
-    switch_page("Hotel Bookings")
-if 'xgb_model' not in st.session_state:
-    switch_page("Hotel Bookings")
-if 'knn_model' not in st.session_state:
-    switch_page("Hotel Bookings")
-
+xgb_model = joblib.load('models/xgb_model.joblib')
 
 data = st.session_state['df']
-model_knn = st.session_state['knn_model']
-model_lr = st.session_state['lr_model']
-model_xgb = st.session_state['xgb_model']
 mappings = st.session_state['mappings']
 
 def get_week_nights(start_date, stop_date):
@@ -87,7 +75,7 @@ def init_page():
                 "lead_time": st.number_input("Lead time", step=1, min_value=0),
                 "arrival_date": st.date_input('Arrival Date', datetime.date.today()),
                 "depart_date": st.date_input('Departing date', datetime.date.today() + datetime.timedelta(days=5)),
-                "adults": st.number_input("Amount of adults", step=1, min_value=0),
+                "adults": st.number_input("Amount of adults", step=1, min_value=1),
                 "children": st.number_input("Amount of children", step=1, min_value=0),
                 "babies": st.number_input("Amount of babies", step=1, min_value=0),
                 "meal": st.selectbox("Meal", mappings["meal"]["unique_values"]),
@@ -117,11 +105,7 @@ def init_page():
 
 def make_prediction(form_value, col):
     with col:
-        prediction_knn = model_knn.predict(reformat_input(form_value))[0][0]
-        #st.write(f'The predicted price is €{prediction_knn} per night (knn)')
-        #prediction_lr = model_lr.predict(reformat_input(form_value))
-        #st.write(f'The predicted price is €{prediction_lr} per night (lr)')[0][0]
-        prediction_xgb = model_xgb.predict(reformat_input(form_value))
+        prediction_xgb = xgb_model.predict(reformat_input(form_value))
         st.write(f'The predicted price is €{prediction_xgb} per night (xgb)')
 
 
