@@ -11,7 +11,7 @@ from utils import load_csv_data, factorize_columns, RMSE, calculate_relative_err
 def load_data(data):
     return st.session_state[data]
 
-#create line chart
+#create line chart average daily rate
 @st.cache_data
 def create_line_chart_adr(data):
         st.subheader('Average Daily Rate (ADR) by Month and Hotel')
