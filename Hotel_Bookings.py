@@ -106,9 +106,6 @@ st.session_state['mappings'] = mappings
 #drop columns used in visualizations only 
 df.drop(['country','total_revenues','total_stay_in_nights'], axis=1, inplace = True)
 
-y = df[['adr']]
-X = df.drop(['adr', 'reservation_status_date','is_repeated_guest'],axis=1)
-
 lr_model = joblib.load('models/lr_model.joblib')
 if 'lr_model' not in st.session_state:
     st.session_state['lr_model'] = df.copy()
