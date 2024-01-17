@@ -1,125 +1,131 @@
+import datetime
 import streamlit as st
-import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
 from streamlit_extras.switch_page_button import switch_page
 
 
 if 'df' not in st.session_state:
     switch_page("Hotel Bookings")
-if 'descriptive_data' not in st.session_state:
+if 'lr_model' not in st.session_state:
+    switch_page("Hotel Bookings")
+if 'xgb_model' not in st.session_state:
+    switch_page("Hotel Bookings")
+if 'knn_model' not in st.session_state:
     switch_page("Hotel Bookings")
 
-@st.cache_data
-def load_data(data):
-    return st.session_state[data]
 
-@st.cache_data
-def create_line_chart_adr(data):
-        st.subheader('Average Daily Rate (ADR) by Month and Hotel')
-        fig, ax = plt.subplots(figsize=(6, 4))
-        fig.set_facecolor('lightgrey')
-        sns.lineplot(x='arrival_date_month', y='adr', hue='hotel', data=data, ax=ax)
-        plt.ylabel("Average Daily Rate (ADR)")
-        plt.xlabel("Month")
-        plt.title("ADR by Month and Hotel")
-        plt.xticks(rotation=45, ha='right')
-        st.pyplot(fig)
+data = st.session_state['df']
+model_knn = st.session_state['knn_model']
+model_lr = st.session_state['lr_model']
+model_xgb = st.session_state['xgb_model']
+mappings = st.session_state['mappings']
 
-# Function to create a bar chart using Plotly
-@st.cache_data
-def create_cancellation_bar_chart(data):
-    st.subheader('Cancellation Count')
-    st.bar_chart(data['is_canceled'].value_counts())
+def get_week_nights(start_date, stop_date):
+    week_nights = 0
+    current_date = start_date
 
-# Function to create a pie chart using Plotly
-@st.cache_data
-def create_pie_chart(data, title):
-    st.subheader(title)
-    fig = plt.figure(figsize=(6, 6))
-    fig.set_facecolor('lightgrey')
-    plt.pie(data, autopct="%.2f", labels=data.index)
-    st.pyplot(fig)
+    while current_date <= stop_date:
+        if current_date.weekday() < 5:  # 0-4 denotes Monday-Friday
+            week_nights += 1
+        current_date += datetime.timedelta(days=1)
 
-rawdata = load_data('df')
-descriptive_data = load_data('descriptive_data')
+    return week_nights
 
 
-st.markdown("# Descriptive Analysis")
-st.sidebar.markdown("# Descriptive Analysis")
-
-# Create a selectbox for hotel in the sidebar
-all_hotels = descriptive_data['hotel'].unique()
-selected_hotel = st.sidebar.multiselect('Hotel:', all_hotels, default=all_hotels)
-
-# Subset of data based on the selection
-subset_raw = rawdata[rawdata["hotel"].isin(selected_hotel)]
-subset_desc = descriptive_data[descriptive_data["hotel"].isin(selected_hotel)]
+def get_weekend_nights(start_date, stop_date):
+    weekend_nights = 0
+    current_date = start_date
+    while current_date <= stop_date:
+        if current_date.weekday() >= 5:  # 5-6 denotes Saturday-Sunday
+            weekend_nights += 1
+        current_date += datetime.timedelta(days=1)
+    return weekend_nights
 
 
-#some calculations
-cancelled_data = subset_desc[subset_desc['is_canceled'] == 1]
-lost_revenues = cancelled_data['total_revenues'].sum()
-top_10_countries_canceled = cancelled_data['country'].value_counts()[:10]
-current_revenues = subset_desc[subset_desc['is_canceled'] == 0]['total_revenues'].sum()
-top_10_countries_canceled_revenues = cancelled_data.groupby('country')['total_revenues'].sum()[:10]
-op_10_countries_canceled_revenues = top_10_countries_canceled_revenues.sort_values(ascending=False)
-missing_value_row_count = subset_raw.isna().any(axis=1).shape[0]
+def reformat_input(form):
+    reformatted_data = {
+        'hotel': [mappings.get('hotel').get('unique_values').get_loc(form.get('hotel'))],
+        'is_canceled': [form.get('is_canceled')],
+        'lead_time': [form.get('lead_time')],
+        'arrival_date_year': [form.get('arrival_date').year],
+        'arrival_date_month': [form.get('arrival_date').month],
+        'arrival_date_week_number': [form.get('arrival_date').isocalendar()[1]],
+        'arrival_date_day_of_month': [form.get('arrival_date').day],
+        'stays_in_weekend_nights': [get_weekend_nights(form.get('arrival_date'), form.get('depart_date'))],
+        'stays_in_week_nights': [get_week_nights(form.get('arrival_date'), form.get('depart_date'))],
+        'adults': [form.get('adults')],
+        'children': [form.get('children')],
+        'babies': [form.get('babies')],
+        'meal': [mappings.get('meal').get('unique_values').get_loc(form.get('meal'))],
+        'market_segment': [mappings.get('market_segment').get('unique_values').get_loc(form.get('market_segment'))],
+        'distribution_channel': [mappings.get('distribution_channel').get('unique_values').get_loc(form.get('distribution_channel'))],
+        'previous_cancellations': [form.get('previous_cancellations')],
+        'previous_bookings_not_canceled': [form.get('previous_bookings_not_canceled')],
+        'reserved_room_type': [mappings.get('reserved_room_type').get('unique_values').get_loc(form.get('reserved_room_type'))],
+        'assigned_room_type': [mappings.get('assigned_room_type').get('unique_values').get_loc(form.get('assigned_room_type'))],
+        'booking_changes': [form.get('booking_changes')],
+        'deposit_type': [mappings.get('deposit_type').get('unique_values').get_loc(form.get('deposit_type'))],
+        'days_in_waiting_list': [form.get('days_in_waiting_list')],
+        'customer_type': [mappings.get('customer_type').get('unique_values').get_loc(form.get('customer_type'))],
+        'required_car_parking_spaces': [form.get('required_car_parking_spaces')],
+        'total_of_special_requests': [form.get('total_of_special_requests')],
+        'reservation_status': [mappings.get('reservation_status').get('unique_values').get_loc(form.get('reservation_status'))],
+    }
+    return pd.DataFrame(reformatted_data)
 
 
-tab1, tab2 = st.tabs(["Data Info", "Graphs"])
-with tab1:
-    if rawdata is not None:
+def init_page():
+    col1, col2 = st.columns(2)
+    with col1:
+        with st.form(key='my_form'):
+            st.markdown("# Fill in the form")
 
-        col1, col2, col3 = st.columns(3)
-        with col1:
-            st.header("Meta-data")
-            row_count = subset_raw .shape[0]
-            col_count = rawdata.shape[1]
-        
-            table_description=f"""
-            |Description | Value |
-            | --- | --- |
-            | # of rows | {row_count} |
-            |# of columns | {col_count}|
-            |# of rows with missing values |{missing_value_row_count}|"""
-            st.markdown(table_description)
+            # Create input elements with labels that match the data keys and default values from data
+            raw_inputs = {
+                "hotel": st.selectbox("Hotel", mappings["hotel"]["unique_values"]),
+                "is_canceled": st.checkbox("Is canceled"),
+                "lead_time": st.number_input("Lead time", step=1, min_value=0),
+                "arrival_date": st.date_input('Arrival Date', datetime.date.today()),
+                "depart_date": st.date_input('Departing date', datetime.date.today() + datetime.timedelta(days=5)),
+                "adults": st.number_input("Amount of adults", step=1, min_value=0),
+                "children": st.number_input("Amount of children", step=1, min_value=0),
+                "babies": st.number_input("Amount of babies", step=1, min_value=0),
+                "meal": st.selectbox("Meal", mappings["meal"]["unique_values"]),
+                "market_segment": st.selectbox("Market segment", mappings["market_segment"]["unique_values"]),
+                "distribution_channel": st.selectbox("Distribution Channel", mappings["distribution_channel"]["unique_values"]),
+                "previous_cancellations": st.number_input("Previous Cancellations", step=1, min_value=0),
+                "previous_bookings_not_canceled": st.number_input("Previous bookings not canceled", step=1, min_value=0),
+                "reserved_room_type": st.selectbox("Room Type", mappings["reserved_room_type"]["unique_values"]),
+                "assigned_room_type": st.selectbox("Room type assigned", mappings["assigned_room_type"]["unique_values"]),
+                "booking_changes": st.checkbox("Booking changes"),
+                "deposit_type": st.selectbox("Deposit type", mappings["deposit_type"]["unique_values"]),
+                "days_in_waiting_list": st.number_input("Days on waiting list", step=1, min_value=0),
+                "customer_type": st.selectbox("Customer type", mappings["customer_type"]["unique_values"]),
+                "required_car_parking_spaces": st.number_input("Required parking spaces", step=1, min_value=0),
+                "total_of_special_requests": st.number_input("Amount of special requests", step=1, min_value=0),
+                "reservation_status": st.selectbox("Reservation status", mappings["reservation_status"]["unique_values"]),
+            }
 
-        with col2:
-            st.header("Columns")
-            columns = list(rawdata.columns)
-            column_info_table = pd.DataFrame({
-                "Column": columns,
-                "Data_type": rawdata.dtypes.tolist()
-            })
-            st.dataframe(column_info_table, hide_index=True)
+            if not raw_inputs.get('arrival_date') < raw_inputs.get('depart_date'):
+                st.error('Error: Departure date must fall after arrival date.')
+            else:
+                submitted = st.form_submit_button(label='Submit')
 
-        with col3:
-            st.header("Missing Values")
-            st.text("")
-            st.write(subset_raw.isna().sum().sort_values(ascending=False))
+        if submitted:
+            make_prediction(raw_inputs, col2)
 
 
-with tab2:
-    if descriptive_data is not None:
+def make_prediction(form_value, col):
+    with col:
+        prediction_knn = model_knn.predict(reformat_input(form_value))[0][0]
+        #st.write(f'The predicted price is €{prediction_knn} per night (knn)')
+        #prediction_lr = model_lr.predict(reformat_input(form_value))
+        #st.write(f'The predicted price is €{prediction_lr} per night (lr)')[0][0]
+        prediction_xgb = model_xgb.predict(reformat_input(form_value))
+        st.write(f'The predicted price is €{prediction_xgb} per night (xgb)')
 
-        st.write('Lost revenue due to cancellations: ', lost_revenues)
-        st.write('Total revenue non cancelled entries: ', current_revenues)
 
-        col1, col2 = st.columns(2)
-        with col1:
-            create_line_chart_adr(subset_desc)
 
-        with col2:
-            create_cancellation_bar_chart(subset_desc)
 
-        col1, col2 = st.columns(2)
-        with col1:
-            create_pie_chart(top_10_countries_canceled, 'Top 10 countries with cancellations in %')
-
-        with col2:
-            create_pie_chart(top_10_countries_canceled_revenues, 'Top 10 countries revenue lost due to cancellation in %')
-
-      
-
+if __name__ == "__main__":
+    init_page()
