@@ -109,26 +109,6 @@ df.drop(['country','total_revenues','total_stay_in_nights'], axis=1, inplace = T
 y = df[['adr']]
 X = df.drop(['adr', 'reservation_status_date','is_repeated_guest'],axis=1)
 
-Xtrain, Xrest, ytrain, yrest = train_test_split(X, y, test_size=0.2)
-Xval, Xtest, yval, ytest = train_test_split(Xrest, yrest, test_size=0.5)
-
-##avoid dataleakage. filling in missing values after train test split
-Xtrain['children'].fillna(Xtrain['children'].median(), inplace=True)
-Xtest['children'].fillna(Xtest['children'].median(), inplace=True)
-Xtrain['children']=Xtrain['children'].astype(int)
-Xtest['children']=Xtest['children'].astype(int)
-
-
-lr = LinearRegression()
-lr.fit(Xtrain, ytrain)
-
-
-knn = KNeighborsRegressor(n_neighbors=5)
-knn.fit(Xtrain, ytrain)
-
-xgb = xgboost.XGBRegressor()
-xgb.fit(Xtrain, ytrain)
-
 lr_model = joblib.load('models/lr_model.joblib')
 if 'lr_model' not in st.session_state:
     st.session_state['lr_model'] = df.copy()
