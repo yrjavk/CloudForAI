@@ -2,6 +2,7 @@ import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
 import time
+import logging
 import joblib
 from utils import RMSE, calculate_relative_error
 from streamlit_extras.switch_page_button import switch_page
@@ -53,6 +54,8 @@ def plot_predictions(models, rmse_values, relative_error_values):
 
 def main():
 
+    log = logging.getLogger()
+    log.setLevel(logging.DEBUG)
     load_models()
 
     st.markdown("# Evaluations")
@@ -67,6 +70,10 @@ def main():
     Xtest = st.session_state.get('Xtest')
     ytest = st.session_state.get('ytest')
     y_range = st.session_state.get('y_range')
+
+    log.info(f"X input type: {type(Xtest)}\Size: {Xtest.shape}")
+    log.info(f"Y input type: {type(ytest)}\Size: {ytest.shape}")
+    log.info(f"Target value range: {y_range}")
 
     predictions_list = []
 
