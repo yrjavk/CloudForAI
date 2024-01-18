@@ -99,10 +99,10 @@ X = df.drop(['adr', 'reservation_status_date','is_repeated_guest'],axis=1)
 Xrest, Xtest, yrest, ytest = train_test_split(X, y, test_size=0.1)
 
 Xtest['children'].fillna(Xtest['children'].median(), inplace=True)
-ytest['children'].fillna(ytest['children'].median(), inplace=True)
 Xtest['children']=Xtest['children'].astype(int)
-ytest['children']=ytest['children'].astype(int)
-
+st.session_state['Xtest'] = Xtest
+st.session_state['ytest'] = ytest
+st.session_state['y_range'] = y.max() - y.min()
 
 lr_model = joblib.load('models/lr_model.joblib')
 if 'lr_model' not in st.session_state:
