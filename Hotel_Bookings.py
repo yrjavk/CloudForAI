@@ -90,6 +90,19 @@ st.session_state['mappings'] = mappings
 #drop columns used in visualizations only
 df.drop(['country','total_revenues','total_stay_in_nights'], axis=1, inplace = True)
 
+y = df[['adr']]
+X = df.drop(['adr', 'reservation_status_date','is_repeated_guest'],axis=1)
+
+Xtrain, Xrest, ytrain, yrest = train_test_split(X, y, test_size=0.2)
+Xval, Xtest, yval, ytest = train_test_split(Xrest, yrest, test_size=0.5)
+
+##avoid dataleakage. filling in missing values after train test split
+Xtest['children'].fillna(Xtest['children'].median(), inplace=True)
+ytest['children'].fillna(ytest['children'].median(), inplace=True)
+Xtest['children']=Xtest['children'].astype(int)
+ytest['children']=ytest['children'].astype(int)
+
+
 lr_model = joblib.load('models/lr_model.joblib')
 if 'lr_model' not in st.session_state:
     st.session_state['lr_model'] = lr_model
