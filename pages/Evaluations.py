@@ -1,110 +1,96 @@
 import streamlit as st
-import pandas as pd
 import numpy as np
-from sklearn.model_selection import train_test_split
+import matplotlib.pyplot as plt
+import time
 import joblib
-from utils import load_csv_data, factorize_columns, RMSE, calculate_relative_error
+from utils import RMSE, calculate_relative_error
+from streamlit_extras.switch_page_button import switch_page
 
+def load_models():
+    models = {
+        "lr_model": joblib.load('models/lr_model.joblib'),
+        "xgb_model": joblib.load('models/xgb_model.joblib'),
+        "knn_model": joblib.load('models/knn_model.joblib'),
+    }
+    for model_name, model in models.items():
+        if str(model_name) not in st.session_state:
+            switch_page("Hotel Bookings")
+    
 
-st.markdown("# Evaluations")
-st.sidebar.markdown("# Evaluations")
+def process_in_batches(model, model_name, Xtest):
+    batch_size = 100
+    model_pred = []
 
-lr_model = st.session_state.get('lr_model', None)
-xgb_model = st.session_state.get('xgb_model', None)
-knn_model = st.session_state.get('knn_model', None)
-data = st.session_state.get('df', None)
+    data_load_state = st.text(f"Processing data for {model_name}")
+    start_time = time.time()
 
-if lr_model is None:
-    lr_model = joblib.load('models/lr_model.joblib')
-    st.session_state['lr_model'] = lr_model
+    for i in range(0, len(Xtest), batch_size):
+        remaining = f"{model_name}: {len(Xtest) - i} batches remaining"
+        data_load_state.text(remaining)
 
-if xgb_model is None:
-    xgb_model = joblib.load('models/xgb_model.joblib')
-    st.session_state['xgb_model'] = xgb_model
+        current_batch = Xtest.iloc[i:i + batch_size, :]
+        current_predictions = model.predict(current_batch)
+        model_pred.extend(current_predictions)
 
-if knn_model is None:
-    knn_model = joblib.load('models/knn_model.joblib')
-    st.session_state['knn_model'] = knn_model
+    end_time = time.time()
+    elapsed_time = end_time - start_time
+    data_load_state.text(f"Elapsed Time for {model_name}: {elapsed_time:.2f} seconds")
 
-if data is None:
-    data = load_csv_data('hotel_booking.csv')
-    st.session_state['df'] = data
+    return np.array(model_pred)
 
-#dit mag eveneens in zijn apparte functie in utils
-y = data[['adr']]
-X = data.drop(['adr', 'reservation_status_date','is_repeated_guest'],axis=1)
+def plot_predictions(models, rmse_values, relative_error_values):
+    fig, pos = plt.subplots(1, 2, figsize=(15, 5))
 
-Xtrain, Xrest, ytrain, yrest = train_test_split(X, y, test_size=0.2)
-Xval, Xtest, yval, ytest = train_test_split(Xrest, yrest, test_size=0.5)
+    pos[0].bar(models, rmse_values)
+    pos[0].set_title("RMSE")
+    pos[0].set_ylabel("RMSE")
 
-##avoid dataleakage. filling in missing values after train test split
-Xtrain['children'].fillna(Xtrain['children'].median(), inplace=True)
-Xtest['children'].fillna(Xtest['children'].median(), inplace=True)
-Xtrain['children']=Xtrain['children'].astype(int)
-Xtest['children']=Xtest['children'].astype(int)
+    pos[1].bar(models, relative_error_values)
+    pos[1].set_title("Relative Error")
+    pos[1].set_ylabel("Relative Error (%)")
 
-data, mappings = factorize_columns(data, ['hotel','meal','market_segment','distribution_channel','reserved_room_type','assigned_room_type', 'deposit_type', 'customer_type', 'reservation_status'])
+    st.pyplot(fig)
 
-default_params = {
-    'hotel': 1,
-    'is_canceled': 0,
-    'lead_time': 0,
-    'arrival_date_year': 2022,
-    'arrival_date_month': 1,
-    'arrival_date_week_number': 1,
-    'arrival_date_day_of_month': 1,
-    'stays_in_weekend_nights': 0,
-    'stays_in_week_nights': 1,
-    'adults': 2,
-    'children': 2,
-    'babies': 0,
-    'meal': 0,
-    'market_segment': 1,
-    'distribution_channel': 1,
-    'previous_cancellations': 0,
-    'previous_bookings_not_canceled': 0,
-    'reserved_room_type': 0,
-    'assigned_room_type': 1,
-    'booking_changes': 0,
-    'deposit_type': 1,
-    'days_in_waiting_list': 0,
-    'customer_type': 0,
-    'required_car_parking_spaces': 0,
-    'total_of_special_requests': 0,
-    'reservation_status': 1,
-}
+def main():
 
-input_data = pd.DataFrame([default_params])
+    load_models()
 
-input = np.array(input_data).reshape(1, -1)
+    st.markdown("# Evaluations")
+    st.sidebar.markdown("# Evaluations")
 
-y_pred_lr = lr_model.predict(input)
-y_pred_xgb = xgb_model.predict(input)
-y_pred_knn = knn_model.predict(input)
+    lr_model = st.session_state['lr_model']
+    xgb_model = st.session_state['xgb_model']
+    knn_model = st.session_state['knn_model']
 
-def compare(lr_model, xgb_model, knn_model):
+    models = [("Linear Regression", lr_model), ("XGBoost", xgb_model), ("KNN", knn_model)]
 
-    st.title("Model Comparison")
+    Xtest = st.session_state.get('Xtest')
+    ytest = st.session_state.get('ytest')
+    y_range = st.session_state.get('y_range')
 
-    st.sidebar.header("Input Parameters")
-    text_input = st.sidebar.text_input("Enter Text", "Default Text")
+    predictions_list = []
 
-    st.header("Model Results")
+    for model_name, model in models:
+        model_pred = process_in_batches(model, model_name, Xtest)
+        predictions_list.append(model_pred)
 
-    st.subheader("Root Mean Squared Error")
-    st.write(f"Linear Regression: {rmse_lr}")
-    st.write(f"XGBoost: {rmse_xgb}")
-    st.write(f"KNN: {rmse_knn}")
-  
-    st.subheader("Relative Error")
-    st.write(f"Linear Regression: {relative_error_lr}%")
-    st.write(f"XGBoost: {relative_error_xgb}%")
-    st.write(f"KNN: {relative_error_knn}%")
+    rmse_values = [RMSE(ytest, pred) for pred in predictions_list]
+    relative_error_values = [calculate_relative_error(rmse, y_range) for rmse in rmse_values]
+    model_names = [model[0] for model in models]
 
-pred_comparison = pd.DataFrame({
-    "Actual": ytest.median(),
-    "Linear Regression": y_pred_lr[0],
-    "XGBoost": y_pred_xgb[0],
-    "KNN": y_pred_knn[0]
-})
-st.write(pred_comparison.head(10))
+    plot_predictions(model_names, rmse_values, relative_error_values)
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.subheader("Root Mean Squared Error")
+        for model_name, rmse in zip(model_names, rmse_values):
+            st.write(f"{model_name}: {rmse}")
+
+    with col2:
+        st.subheader("Relative Error")
+        for model_name, relative_error in zip(model_names, relative_error_values):
+            st.write(f"{model_name}: {relative_error}%")
+
+if __name__ == "__main__":
+    main()

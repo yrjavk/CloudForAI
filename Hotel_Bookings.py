@@ -113,6 +113,16 @@ Xtest['children'].fillna(Xtest['children'].median(), inplace=True)
 Xtrain['children']=Xtrain['children'].astype(int)
 Xtest['children']=Xtest['children'].astype(int)
 
+y_range = y.max() - y.min()
+
+
+if 'Xtest' not in st.session_state:
+    st.session_state['Xtest'] = Xtest
+if 'ytest' not in st.session_state:
+    st.session_state['ytest'] = ytest
+if 'y_range' not in st.session_state:
+    st.session_state['y_range'] = y_range
+
 
 def calculate_relative_error(rmse, y):
     y_range = y.max() - y.min()
