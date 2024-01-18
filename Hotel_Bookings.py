@@ -43,7 +43,7 @@ def factorize_columns(data, columns_to_factorize):
 
     return data, encoded_mappings
 
-#calculate RMSE    
+#calculate RMSE
 def RMSE(y,y_pred):
   mse=mean_squared_error(y, y_pred)
   return np.sqrt(mse)
@@ -103,7 +103,7 @@ data_load_state = st.text('Modeling data...')
 df, mappings = factorize_columns(df, ['hotel','meal','market_segment','distribution_channel','reserved_room_type','assigned_room_type', 'deposit_type', 'customer_type', 'reservation_status'])
 st.session_state['mappings'] = mappings
 
-#drop columns used in visualizations only 
+#drop columns used in visualizations only
 df.drop(['country','total_revenues','total_stay_in_nights'], axis=1, inplace = True)
 
 lr_model = joblib.load('models/lr_model.joblib')
