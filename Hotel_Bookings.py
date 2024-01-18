@@ -96,7 +96,7 @@ df.drop(['country','total_revenues','total_stay_in_nights'], axis=1, inplace = T
 y = df[['adr']]
 X = df.drop(['adr', 'reservation_status_date','is_repeated_guest'],axis=1)
 
-Xrest, Xtest, yrest, ytest = train_test_split(x, y, test_size=0.1)
+Xrest, Xtest, yrest, ytest = train_test_split(X, y, test_size=0.1)
 
 Xtest['children'].fillna(Xtest['children'].median(), inplace=True)
 ytest['children'].fillna(ytest['children'].median(), inplace=True)
