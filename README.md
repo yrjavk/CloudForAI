@@ -7,9 +7,9 @@ https://www.kaggle.com/datasets/mojtaba142/hotel-booking/data
 We want to create a model that can provide the ideal daily rate in order to maximize room occupation in the hotel.
 
 ## Reason
-Less cancellations. <br/>
+Less cancellations and higher revenue. <br/>
 Easier to maintain staff scheduling. <br/>
-Simplify inventory management. Higher revenue.
+Simplify inventory management.
 
 ## Models used and metrics
 Linear Regression <br/>

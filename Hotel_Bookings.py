@@ -9,43 +9,12 @@ import streamlit as st
 import joblib
 
 
-st.set_page_config(layout="wide")
-
-st.title('Hotel Bookings')
-st.markdown(
-    """
-    Welcome to our app to predict the average daily rate of a hotel booking.  \n
-    In the sidebar you can find different pages to explore the data, make predictions and the evaluations of the model. 
-    
-    ## Raw Data Source
-    Check out this [Kaggle Page](https://www.kaggle.com/datasets/mojtaba142/hotel-booking) for the source of the raw data used in this app. 
-
-
-"""
-)
-st.sidebar.markdown('# Hotel Bookings')
-st.header('Loading data')
-
-
-
+#load data
 @st.cache_data
 def load_csv_data(filename):
     data = pd.read_csv(filename)
     data.drop(['email', 'credit_card', 'phone-number', 'name'], axis=1, inplace = True)
     return data
-
-
-data_load_state = st.text('Loading raw data...')
-df = load_csv_data('hotel_booking.csv')
-data_load_state.text('Loading raw data...done!')
-
-if st.checkbox("Show raw data first 5 rows"):
-    st.write(df.head())
-
-if 'df' not in st.session_state:
-    st.session_state['df'] = df.copy()
-
-
 
 #data cleaning for descriptive analysis 
 @st.cache_data
@@ -62,17 +31,7 @@ def data_preparation(data):
     data.drop(data['adr'].idxmax(), inplace = True)
     return data
 
-
-data_load_state = st.text('Loading descriptive data...')
-descriptive_data = data_preparation(df.copy())
-data_load_state.text('Loading descriptive data...done!')
-
-if 'descriptive_data' not in st.session_state:
-    st.session_state['descriptive_data'] = descriptive_data
-
-df = data_preparation(df)
-
-
+#set categorical columns to numberical values
 @st.cache_data
 def factorize_columns(data, columns_to_factorize):
     encoded_mappings = {}
@@ -83,7 +42,59 @@ def factorize_columns(data, columns_to_factorize):
         encoded_mappings[column] = {'codes': codes, 'unique_values': unique_values}
 
     return data, encoded_mappings
+
+#calculate RMSE
+def RMSE(y,y_pred):
+  mse=mean_squared_error(y, y_pred)
+  return np.sqrt(mse)
+
+#calculate relative error
+@st.cache_data
+def calculate_relative_error(rmse, y):
+    y_range = y.max() - y.min()
+    relative_error = float((rmse / y_range) * 100)
+
+    return relative_error
+
+
+st.set_page_config(layout="wide")
+
+st.title('Hotel Bookings')
+st.markdown(
+    """
+    Welcome to our app to predict the average daily rate of a hotel booking.  \n
+    In the sidebar you can find different pages to explore the data, make predictions and the evaluations of the model. 
     
+    ## Raw Data Source
+    Check out this [Kaggle Page](https://www.kaggle.com/datasets/mojtaba142/hotel-booking) for the source of the raw data used in this app. 
+
+
+"""
+)
+
+st.sidebar.markdown('# Hotel Bookings')
+st.header('Loading data')
+
+
+data_load_state = st.text('Loading raw data...')
+df = load_csv_data('hotel_booking.csv')
+data_load_state.text('Loading raw data...done!')
+
+if st.checkbox("Show raw data first 5 rows"):
+    st.write(df.head())
+
+if 'df' not in st.session_state:
+    st.session_state['df'] = df.copy()
+
+
+data_load_state = st.text('Loading descriptive data...')
+descriptive_data = data_preparation(df.copy())
+data_load_state.text('Loading descriptive data...done!')
+
+if 'descriptive_data' not in st.session_state:
+    st.session_state['descriptive_data'] = descriptive_data
+
+df = data_preparation(df)
 
 st.header('Modeling Data')
 data_load_state = st.text('Modeling data...')
@@ -92,55 +103,8 @@ data_load_state = st.text('Modeling data...')
 df, mappings = factorize_columns(df, ['hotel','meal','market_segment','distribution_channel','reserved_room_type','assigned_room_type', 'deposit_type', 'customer_type', 'reservation_status'])
 st.session_state['mappings'] = mappings
 
-#drop columns used in visualizations only 
+#drop columns used in visualizations only
 df.drop(['country','total_revenues','total_stay_in_nights'], axis=1, inplace = True)
-
-
-def RMSE(y,y_pred):
-  mse=mean_squared_error(y, y_pred)
-  return np.sqrt(mse)
-
-
-y = df[['adr']]
-X = df.drop(['adr', 'reservation_status_date','is_repeated_guest'],axis=1)
-
-Xtrain, Xrest, ytrain, yrest = train_test_split(X, y, test_size=0.2)
-Xval, Xtest, yval, ytest = train_test_split(Xrest, yrest, test_size=0.5)
-
-##avoid dataleakage. filling in missing values after train test split
-Xtrain['children'].fillna(Xtrain['children'].median(), inplace=True)
-Xtest['children'].fillna(Xtest['children'].median(), inplace=True)
-Xtrain['children']=Xtrain['children'].astype(int)
-Xtest['children']=Xtest['children'].astype(int)
-
-y_range = y.max() - y.min()
-
-
-if 'Xtest' not in st.session_state:
-    st.session_state['Xtest'] = Xtest
-if 'ytest' not in st.session_state:
-    st.session_state['ytest'] = ytest
-if 'y_range' not in st.session_state:
-    st.session_state['y_range'] = y_range
-
-
-def calculate_relative_error(rmse, y):
-    y_range = y.max() - y.min()
-    relative_error = float((rmse / y_range) * 100)
-
-    return relative_error
-
-
-lr = LinearRegression()
-lr.fit(Xtrain, ytrain)
-
-
-knn = KNeighborsRegressor(n_neighbors=5)
-knn.fit(Xtrain, ytrain)
-
-
-xgb = xgboost.XGBRegressor()
-xgb.fit(Xtrain, ytrain)
 
 lr_model = joblib.load('models/lr_model.joblib')
 if 'lr_model' not in st.session_state:
