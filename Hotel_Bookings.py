@@ -106,7 +106,7 @@ ytest['children']=ytest['children'].astype(int)
 
 lr_model = joblib.load('models/lr_model.joblib')
 if 'lr_model' not in st.session_state:
-    st.session_state['lr_model'] = df.copy()
+    st.session_state['lr_model'] = lr_model
 xgb_model = joblib.load('models/xgb_model.joblib')
 if 'xgb_model' not in st.session_state:
     st.session_state['xgb_model'] = xgb_model
