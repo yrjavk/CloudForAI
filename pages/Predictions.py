@@ -32,7 +32,7 @@ def get_weekend_nights(start_date, stop_date):
 
 def reformat_input(form):
     reformatted_data = {
-        'hotel': [mappings.get('hotel').get('unique_values').get_loc(form.get('hotel'))],
+        'hotel': [form.get('hotel')],
         'is_canceled': [form.get('is_canceled')],
         'lead_time': [form.get('lead_time')],
         'arrival_date_year': [form.get('arrival_date').year],
@@ -44,20 +44,20 @@ def reformat_input(form):
         'adults': [form.get('adults')],
         'children': [form.get('children')],
         'babies': [form.get('babies')],
-        'meal': [mappings.get('meal').get('unique_values').get_loc(form.get('meal'))],
-        'market_segment': [mappings.get('market_segment').get('unique_values').get_loc(form.get('market_segment'))],
-        'distribution_channel': [mappings.get('distribution_channel').get('unique_values').get_loc(form.get('distribution_channel'))],
+        'meal': [form.get('meal')],
+        'market_segment': [form.get('market_segment')],
+        'distribution_channel': [form.get('distribution_channel')],
         'previous_cancellations': [form.get('previous_cancellations')],
         'previous_bookings_not_canceled': [form.get('previous_bookings_not_canceled')],
-        'reserved_room_type': [mappings.get('reserved_room_type').get('unique_values').get_loc(form.get('reserved_room_type'))],
-        'assigned_room_type': [mappings.get('assigned_room_type').get('unique_values').get_loc(form.get('assigned_room_type'))],
+        'reserved_room_type': [form.get('reserved_room_type')],
+        'assigned_room_type': [form.get('assigned_room_type')],
         'booking_changes': [form.get('booking_changes')],
-        'deposit_type': [mappings.get('deposit_type').get('unique_values').get_loc(form.get('deposit_type'))],
+        'deposit_type': [form.get('deposit_type')],
         'days_in_waiting_list': [form.get('days_in_waiting_list')],
-        'customer_type': [mappings.get('customer_type').get('unique_values').get_loc(form.get('customer_type'))],
+        'customer_type': [form.get('customer_type')],
         'required_car_parking_spaces': [form.get('required_car_parking_spaces')],
         'total_of_special_requests': [form.get('total_of_special_requests')],
-        'reservation_status': [mappings.get('reservation_status').get('unique_values').get_loc(form.get('reservation_status'))],
+        'reservation_status': [form.get('reservation_status')],
     }
     return pd.DataFrame(reformatted_data)
 
@@ -107,8 +107,6 @@ def make_prediction(form_value, col):
     with col:
         prediction_xgb = xgb_model.predict(reformat_input(form_value))
         st.write(f'The predicted price is €{prediction_xgb} per night (xgb)')
-
-
 
 
 if __name__ == "__main__":
