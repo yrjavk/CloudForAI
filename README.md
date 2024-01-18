@@ -15,6 +15,7 @@ Simplify inventory management.
 Linear Regression <br/>
 XGBOOST<br/>
 KNearest Neighbors<br/>
+Conclusion is that even though KNN has the best metrics, due to it's slow performance, we concluded that XGBOOST would be better suited to our needs. 
 
 RMSE
 
