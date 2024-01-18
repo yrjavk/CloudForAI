@@ -8,7 +8,6 @@ from sklearn.metrics import mean_squared_error
 import streamlit as st
 import joblib
 
-
 #load data
 @st.cache_data
 def load_csv_data(filename):
@@ -43,20 +42,6 @@ def factorize_columns(data, columns_to_factorize):
 
     return data, encoded_mappings
 
-#calculate RMSE
-def RMSE(y,y_pred):
-  mse=mean_squared_error(y, y_pred)
-  return np.sqrt(mse)
-
-#calculate relative error
-@st.cache_data
-def calculate_relative_error(rmse, y):
-    y_range = y.max() - y.min()
-    relative_error = float((rmse / y_range) * 100)
-
-    return relative_error
-
-
 st.set_page_config(layout="wide")
 
 st.title('Hotel Bookings')
@@ -85,7 +70,6 @@ if st.checkbox("Show raw data first 5 rows"):
 
 if 'df' not in st.session_state:
     st.session_state['df'] = df.copy()
-
 
 data_load_state = st.text('Loading descriptive data...')
 descriptive_data = data_preparation(df.copy())
